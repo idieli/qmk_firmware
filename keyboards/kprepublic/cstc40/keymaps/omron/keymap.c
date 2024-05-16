@@ -315,9 +315,8 @@ void leader_end_user(void) {
         // s, n, i, p : Partial screenshot
 	SEND_STRING(SS_LGUI(SS_LSFT("s")));
     } else if (leader_sequence_four_keys(KC_H, KC_E, KC_L, KC_P)) {
-        // h, e, l, p : Type keymap url
-	SEND_STRING(SS_LGUI(SS_LSFT("www.keyboard-layout-editor.com"))); // fill in with final permalink
-	SEND_STRING(SS_LGUI(SS_LSFT("www.keyboard-layout-editor.com"))); // fill in with final permalink
+        // h, e, l, p : Type github url
+	SEND_STRING("https://github.com/idieli/qmk_firmware/tree/master/keyboards/kprepublic/cstc40/keymaps/omron");
 
     // Five key sequence
     } else if (leader_sequence_five_keys(KC_E, KC_M, KC_O, KC_J, KC_I)) {
