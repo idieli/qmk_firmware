@@ -1,4 +1,5 @@
 /* Copyright 2023
+		 return true; // this allows for normal processing of key release! 
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,21 +43,8 @@ enum custom_keycodes {
     M_SELET,
     M_SELW,
     M_SELL,
-    M_SELA,
-
-    // Dynamic Macro
-    C_DMPLY
+    M_SELA
 };
-
-enum tap_dance_codes {
-    TD_DM
-};
-
-typedef struct {
-    uint16_t tap;
-    uint16_t hold;
-    uint16_t held;
-} tap_dance_tap_hold_t;
 
 #ifndef MAGIC_ENABLE
 uint8_t mod_config(uint8_t mod) {
@@ -68,37 +56,12 @@ bool recording_dynamic_macro = false;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
-    //uint16_t macro_kc = (keycode == TD(TD_DM) ? DM_RSTP : keycode);
-
-    //if (!process_record_dynamic_macro(macro_kc, record)) {
-    /*
-    if (!process_dynamic_macro(macro_kc, record)) {
-        return false;
-    }
-    */
-    /*
-    if (recording_dynamic_macro) {
-        uint16_t macro_kc = (keycode == TD(TD_DM) ? DM_RSTP : keycode);
-        if (!process_dynamic_macro(macro_kc, record)) {
-            return false;
-	}
-    }
-
-    if (keycode == DM_REC1) {
-        recording_dynamic_macro = true;
-    }
-    */
-
-    //tap_dance_action_t *action;
-
     switch (keycode) {
     // Tabs
     case M_REOPT:
-        if (record->event.pressed) {
-	    // when keycode M_REOPT is pressed
+        if (record->event.pressed) { // when keycode is pressed
 	    SEND_STRING(SS_LCTL(SS_LSFT("t")));
-	} else {
-	    // when keycode M_REOPT is released
+	} else { // when keycode is released
 	}
 	break;
     case M_CLOST:
@@ -180,96 +143,61 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	break;
 
     // Dynamic Macros
-    case TD(TD_DM):
-        tap_dance_action_t *action;
-        //action = &tap_dance_actions[QK_TAP_DANCE_GET_INDEX(keycode)];
-        action = &tap_dance_actions[TD_INDEX(keycode)];
-        if (!record->event.pressed && action->state.count && !action->state.finished) {
-            tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
-            tap_code16(tap_hold->tap);
+    case LT(0,KC_NO):
+        keyrecord_t kr;
+        if (record->tap.count && record->event.pressed) { // Intercept tap
+            if (recording_dynamic_macro) {
+                recording_dynamic_macro = false;
+
+                kr.event.pressed = true;
+                process_dynamic_macro(DM_RSTP, &kr);
+            } else {
+                kr.event.pressed = false;
+                process_dynamic_macro(DM_PLY1, &kr);
+	    }
+        } else if (record->event.pressed) { // Intercept hold
+            if (recording_dynamic_macro) {
+                kr.event.pressed = true;
+                process_dynamic_macro(DM_RSTP, &kr);
+            } else {
+                kr.event.pressed = false;
+                process_dynamic_macro(DM_REC1, &kr);
+	    }
+            recording_dynamic_macro = !recording_dynamic_macro;
         }
-	break;
-    /*
-    case DM_PLY1:
-    //[TD_DM] = ACTION_TAP_DANCE_TAP_HOLD(DM_PLY1, DM_REC1)
-        if (record->event.pressed) {
-            uint16_t kc;
-            if (recording_dynamic_macro) {
-                kc = DM_RSTP;
-            } else {
-                kc = keycode;
-	    }
-            process_dynamic_macro(kc, record)
-            return false;
-	}
-	break;
-    */
-    /*
-    case DM_REC1:
-        if (record->event.pressed) {
-            recording_dynamic_macro = true;
-            process_dynamic_macro(kc, record)
-            return false;
-	}
-	break;
-    */
-    case C_DMPLY:
-        if (record->event.pressed) {
-            if (recording_dynamic_macro) {
-	        SEND_STRING(SS_TAP(DM_RSTP));
-            } else {
-	        SEND_STRING(SS_TAP(DM_PLY1));
-	    }
-	}
-	break;
+        return false;
     }
     return true;
 };
 
-// Tap Dance
-void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
-    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+/*
+void dynMacro(qk_tap_dance_state_t *state, void *user_data) {
 
-    if (state->pressed) {
-        if (state->count == 1
-#ifndef PERMISSIVE_HOLD
-            && !state->interrupted
-#endif
-        ) {
-            register_code16(tap_hold->hold);
-            tap_hold->held = tap_hold->hold;
-        } else {
-            register_code16(tap_hold->tap);
-            tap_hold->held = tap_hold->tap;
-        }
+    if ( state->count > 3 )
+        return;
+    
+    keyrecord_t kr;
+    kr.event.pressed = false;
+    
+    uint16_t action = DYN_REC_STOP;
+    
+    if ( state->count == 1 ) {
+        action = DYN_MACRO_PLAY1;
     }
-}
-
-void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
-    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
-
-    if (tap_hold->held) {
-        unregister_code16(tap_hold->held);
-        tap_hold->held = 0;
+    
+    else if ( state->count == 2 ) {
+        action = DYN_REC_STOP;
+        kr.event.pressed = true;
     }
+    
+    else if ( state->count == 3 ) {
+        action = DYN_REC_START1;
+    }
+
+    process_dynamic_macro( action, &kr );
+
 }
-
-#define ACTION_TAP_DANCE_TAP_HOLD(tap, hold) \
-    { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
-
-tap_dance_action_t tap_dance_actions[] = {
-    //[TD_DM] = ACTION_TAP_DANCE_TAP_HOLD(DM_PLY1, DM_REC1)
-    [TD_DM] = ACTION_TAP_DANCE_TAP_HOLD(C_DMPLY, DM_REC1)
-};
-
-void dynamic_macro_record_start_user(int8_t direction) {
-    layer_move(_BASE);
-    recording_dynamic_macro = true;
-}
-
-void dynamic_macro_record_end_user(int8_t direction) {
-    recording_dynamic_macro = false;
-}
+*/
 
 // Leader Sequences
 void leader_start_user(void) {
@@ -362,7 +290,7 @@ bool caps_word_press_user(uint16_t keycode) {
 	case KC_ESC:
 	case KC_LSFT:
 	case KC_RSFT:
-	case TD(TD_DM):
+        case LT(0,KC_NO):
 	case KC_LALT:
 	case KC_RALT:
 	case KC_LCTL:
@@ -415,7 +343,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_ESC,      KC_Q,       KC_W,     KC_E,     KC_R,      KC_T,    KC_Y,  KC_U,      KC_I,     KC_O,     KC_P,       KC_BSPC,
     KC_LSFT,     KC_A,       KC_S,     KC_D,     KC_F,      KC_G,    KC_H,  KC_J,      KC_K,     KC_L,     TT(_SYMB),  KC_RSFT,
     KC_ENT,      KC_Z,       KC_X,     KC_C,     KC_V,      KC_B,    KC_N,  KC_M,      KC_LEFT,  KC_DOWN,  KC_UP,      KC_RGHT,
-    TT(_MEDIA),  TD(TD_DM),  KC_LALT,  KC_LCTL,  TT(_NUM),      KC_SPC,     TT(_NAV),  KC_RCTL,  KC_RGUI,  QK_LEAD,    TT(_FN)   
+    TT(_MEDIA),  LT(0,KC_NO),  KC_LALT,  KC_LCTL,  TT(_NUM),      KC_SPC,     TT(_NAV),  KC_RCTL,  KC_RGUI,  QK_LEAD,    TT(_FN)
 ),
 
 /* Symbols
