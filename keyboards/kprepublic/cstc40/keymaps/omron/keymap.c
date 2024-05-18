@@ -17,6 +17,8 @@
 
 #include QMK_KEYBOARD_H
 
+#include "print.h"
+
 #define _BASE 0
 #define _SYMB 1
 #define _MEDIA 2
@@ -48,19 +50,32 @@ enum custom_keycodes {
     M_SELA
 };
 
+void keyboard_post_init_user(void) {
+    rgb_matrix_mode(RGB_MATRIX_CUSTOM_BASE_RGB);
+}
+
 layer_state_t layer_state_set_user(layer_state_t state) {
     switch (get_highest_layer(state)) {
-    case _BASE:
-        //rgb_matrix_set_color_all(0, 0, 0);
-        rgblight_setrgb(0, 0, 0);
-        break;
     case _SYMB:
-        //rgb_matrix_set_color(21, 100, 50, 50);
-        rgblight_setrgb_at(100, 50, 50, 21);
+	rgb_matrix_mode(RGB_MATRIX_CUSTOM_SYMB_RGB);
         break;
-    default: //  for any other layers, or the default layer
-        //rgb_matrix_set_color_all(0, 0, 0);
-        rgblight_setrgb(0, 0, 0);
+    case _MEDIA:
+	rgb_matrix_mode(RGB_MATRIX_CUSTOM_MEDIA_RGB);
+        break;
+    case _NUM:
+	rgb_matrix_mode(RGB_MATRIX_CUSTOM_NUM_RGB);
+        break;
+    case _NAV:
+	rgb_matrix_mode(RGB_MATRIX_CUSTOM_NAV_RGB);
+        break;
+    case _FN:
+	rgb_matrix_mode(RGB_MATRIX_CUSTOM_FN_RGB);
+        break;
+    case _MIDI:
+	rgb_matrix_mode(RGB_MATRIX_CUSTOM_MIDI_RGB);
+        break;
+    default:
+	rgb_matrix_mode(RGB_MATRIX_CUSTOM_BASE_RGB);
         break;
     }
   return state;
@@ -76,11 +91,9 @@ void handle_dynamic_macro(uint16_t keycode) {
         case DM_RSTP:
             recording_dynamic_macro = false;
             kr.event.pressed = true;
-            process_dynamic_macro(DM_RSTP, &kr);
 	    break;
         case DM_PLY1:
             kr.event.pressed = false;
-            process_dynamic_macro(DM_PLY1, &kr);
 	    break;
         case DM_REC1:
             recording_dynamic_macro = true;
@@ -93,6 +106,8 @@ void handle_dynamic_macro(uint16_t keycode) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  // If console is enabled, it will print the matrix position and status of each key pressed
+    uprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
 
     switch (keycode) {
     // Tabs
@@ -182,35 +197,76 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     // Dynamic Macro
     case LT(0,KC_NO):
-        ///keyrecord_t kr;
-        if (record->tap.count && record->event.pressed) { // Intercept tap
+        keyrecord_t kr;
+        //if (record->tap.count && record->event.pressed) { // Intercept tap
+        if (record->tap.count && !record->event.pressed) { // Intercept tap release
             if (recording_dynamic_macro) {
-                //recording_dynamic_macro = false;
+		tap_code(KC_S);
+                recording_dynamic_macro = false;
 
-                //kr.event.pressed = true;
-                //process_dynamic_macro(DM_RSTP, &kr);
-                handle_dynamic_macro(DM_RSTP);
+                kr.event.pressed = true;
+                process_dynamic_macro(DM_RSTP, &kr);
+                //handle_dynamic_macro(DM_RSTP);
             } else {
-                //kr.event.pressed = false;
-                //process_dynamic_macro(DM_PLY1, &kr);
-                handle_dynamic_macro(DM_PLY1);
+		tap_code(KC_P);
+                kr.event.pressed = false;
+                process_dynamic_macro(DM_PLY1, &kr);
+                //handle_dynamic_macro(DM_PLY1);
 	    }
-        } else if (record->event.pressed) { // Intercept hold
+        //} else if (record->event.pressed) { // Intercept hold
+        } else if (!record->event.pressed) { // Intercept hold release
             if (recording_dynamic_macro) {
-                //kr.event.pressed = true;
-                //process_dynamic_macro(DM_RSTP, &kr);
-                handle_dynamic_macro(DM_RSTP);
+		tap_code(KC_S);
+                kr.event.pressed = true;
+                process_dynamic_macro(DM_RSTP, &kr);
+                //handle_dynamic_macro(DM_RSTP);
             } else {
-                //kr.event.pressed = false;
-                //process_dynamic_macro(DM_REC1, &kr);
-                handle_dynamic_macro(DM_REC1);
+		tap_code(KC_R);
+                kr.event.pressed = false;
+                process_dynamic_macro(DM_REC1, &kr);
+                //handle_dynamic_macro(DM_REC1);
 	    }
-            //recording_dynamic_macro = !recording_dynamic_macro;
+            recording_dynamic_macro = !recording_dynamic_macro;
         }
         return false;
     }
     return true;
 };
+
+
+void dynamic_macro_record_start_user(int8_t direction) {
+    tap_code(KC_F);
+    tap_code(KC_R);
+    uprintf("in dynamic_macro_record_start_user\n");
+}
+
+void dynamic_macro_play_user(int8_t direction) {
+    tap_code(KC_F);
+    tap_code(KC_P);
+    uprintf("in dynamic_macro_play_user\n");
+}
+
+void dynamic_macro_record_key_user(int8_t direction, keyrecord_t *record) {
+    tap_code(KC_I);
+    tap_code(KC_R);
+    uprintf("in dynamic_macro_record_key_user\n");
+}
+
+void dynamic_macro_record_end_user(int8_t direction) {
+    tap_code(KC_F);
+    tap_code(KC_S);
+    uprintf("in dynamic_macro_record_end_user\n");
+}
+
+/*
+void keyboard_post_init_user(void) {
+  // Customise these values to desired behaviour
+  debug_enable=true;
+  debug_matrix=true;
+  debug_keyboard=true;
+  //debug_mouse=true;
+}
+*/
 
 // Leader Sequences
 void leader_start_user(void) {
@@ -465,9 +521,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_MIDI] = LAYOUT_planck_mit(
-    TO(_BASE),  MI_C4,    MI_D4,    MI_E4,    MI_F4,    MI_G4,    MI_A5,   MI_B5,    MI_C5,    MI_D5,    MI_E5,    XXXXXXX,
-    XXXXXXX,    MI_C3,    MI_D3,    MI_E3,    MI_F3,    MI_G3,    MI_A4,   MI_B4,    MI_C4,    MI_D4,    MI_E4,    XXXXXXX,
-    MI_OCTU,    MI_C2,    MI_D2,    MI_E2,    MI_F2,    MI_G2,    MI_A3,   MI_B3,    MI_C3,    MI_D3,    MI_E3,    MI_TRSU,
+    TO(_BASE),  MI_C4,    MI_D4,    MI_E4,    MI_F4,    MI_G4,    MI_A4,   MI_B4,    MI_C5,    MI_D5,    MI_E5,    XXXXXXX,
+    XXXXXXX,    MI_C3,    MI_D3,    MI_E3,    MI_F3,    MI_G3,    MI_A3,   MI_B3,    MI_C4,    MI_D4,    MI_E4,    XXXXXXX,
+    MI_OCTU,    MI_C2,    MI_D2,    MI_E2,    MI_F2,    MI_G2,    MI_A2,   MI_B2,    MI_C3,    MI_D3,    MI_E3,    MI_TRSU,
     MI_OCTD,    XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,       XXXXXXX,      XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  MI_TRSD
 ),
 
