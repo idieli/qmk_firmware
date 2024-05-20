@@ -15,6 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Compile command
+// qmk compile -kb kprepublic/cstc40/single_pcb -km omron
+
 #include QMK_KEYBOARD_H
 
 #include "print.h"
@@ -47,7 +50,39 @@ enum custom_keycodes {
     M_SELET,
     M_SELW,
     M_SELL,
-    M_SELA
+    M_SELA,
+
+    // Delete
+    M_DELBL,
+    M_DELEL,
+    M_DELBT,
+    M_DELET,
+    M_DELW,
+    M_DELL,
+
+    // Copy
+    M_CPBL,
+    M_CPEL,
+    M_CPBT,
+    M_CPET,
+    M_CPW,
+    M_CPL,
+
+    // Paste
+    M_PSTBL,
+    M_PSTEL,
+    M_PSTBT,
+    M_PSTET,
+    M_PSTW,
+    M_PSTL,
+
+    // Cut
+    M_CUTBL,
+    M_CUTEL,
+    M_CUTBT,
+    M_CUTET,
+    M_CUTW,
+    M_CUTL
 };
 
 void keyboard_post_init_user(void) {
@@ -79,6 +114,14 @@ layer_state_t layer_state_set_user(layer_state_t state) {
         break;
     }
   return state;
+}
+
+void caps_word_set_user(bool active) {
+    if (active) {
+	rgb_matrix_mode(RGB_MATRIX_CUSTOM_SET_CAPS_RGB);
+    } else {
+	rgb_matrix_mode(RGB_MATRIX_CUSTOM_UNSET_CAPS_RGB);
+    }
 }
 
 bool recording_dynamic_macro = false;
@@ -195,20 +238,148 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	}
 	break;
 
+    // Delete
+    case M_DELBL:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_BSPC))));
+	}
+	break;
+    case M_DELEL:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_DEL))));
+	}
+	break;
+    case M_DELBT:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_HOME)))SS_TAP(X_BSPC));
+	}
+	break;
+    case M_DELET:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_END)))SS_TAP(X_DEL));
+	}
+	break;
+    case M_DELW:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_TAP(X_LEFT)SS_TAP(X_DEL)));
+	}
+	break;
+    case M_DELL:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_TAP(X_HOME)SS_LCTL(SS_LSFT(SS_TAP(X_DEL)))SS_TAP(X_DEL));
+	}
+	break;
+
+    // Copy
+    case M_CPBL:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LSFT(SS_TAP(X_HOME))SS_LCTL("c")SS_TAP(X_RGHT));
+	}
+	break;
+    case M_CPEL:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LSFT(SS_TAP(X_END))SS_LCTL("c")SS_TAP(X_LEFT));
+	}
+	break;
+    case M_CPBT:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_HOME))"c")SS_TAP(X_RGHT));
+	}
+	break;
+    case M_CPET:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_END))"c")SS_TAP(X_LEFT));
+	}
+	break;
+    case M_CPW:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_TAP(X_LEFT)SS_LSFT(SS_TAP(X_RGHT))"c")SS_TAP(X_RIGHT));
+	}
+	break;
+    case M_CPL:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_TAP(X_HOME)SS_LSFT(SS_TAP(X_END))SS_LCTL("c")SS_TAP(X_RGHT));
+	}
+	break;
+
+    // Paste
+    case M_PSTBL:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_TAP(X_HOME)SS_LCTL("v"));
+	}
+	break;
+    case M_PSTEL:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_TAP(X_END)SS_LCTL("v"));
+	}
+	break;
+    case M_PSTBT:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_TAP(X_HOME)"v"));
+	}
+	break;
+    case M_PSTET:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_TAP(X_END)"v"));
+	}
+	break;
+    case M_PSTW:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_TAP(X_LEFT)SS_LSFT(SS_TAP(X_RGHT))"v"));
+	}
+	break;
+    case M_PSTL:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_TAP(X_HOME)SS_LSFT(SS_TAP(X_END))SS_LCTL("v"));
+	}
+	break;
+
+    // Cut
+    case M_CUTBL:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LSFT(SS_TAP(X_HOME))SS_LCTL("x"));
+	}
+	break;
+    case M_CUTEL:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LSFT(SS_TAP(X_END))SS_LCTL("x"));
+	}
+	break;
+    case M_CUTBT:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_HOME))"x"));
+	}
+	break;
+    case M_CUTET:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_LSFT(SS_TAP(X_END))"x"));
+	}
+	break;
+    case M_CUTW:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL(SS_TAP(X_LEFT)SS_LSFT(SS_TAP(X_RGHT))"x"));
+	}
+	break;
+    case M_CUTL:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_TAP(X_HOME)SS_LSFT(SS_TAP(X_END))SS_LCTL("x")SS_TAP(X_DEL));
+	}
+	break;
+
     // Dynamic Macro
     case LT(0,KC_NO):
         keyrecord_t kr;
         //if (record->tap.count && record->event.pressed) { // Intercept tap
         if (record->tap.count && !record->event.pressed) { // Intercept tap release
             if (recording_dynamic_macro) {
-		tap_code(KC_S);
+		//tap_code(KC_S);
                 recording_dynamic_macro = false;
 
                 kr.event.pressed = true;
                 process_dynamic_macro(DM_RSTP, &kr);
                 //handle_dynamic_macro(DM_RSTP);
             } else {
-		tap_code(KC_P);
+		//tap_code(KC_P);
                 kr.event.pressed = false;
                 process_dynamic_macro(DM_PLY1, &kr);
                 //handle_dynamic_macro(DM_PLY1);
@@ -216,12 +387,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         //} else if (record->event.pressed) { // Intercept hold
         } else if (!record->event.pressed) { // Intercept hold release
             if (recording_dynamic_macro) {
-		tap_code(KC_S);
+		//tap_code(KC_S);
                 kr.event.pressed = true;
                 process_dynamic_macro(DM_RSTP, &kr);
                 //handle_dynamic_macro(DM_RSTP);
             } else {
-		tap_code(KC_R);
+		//tap_code(KC_R);
                 kr.event.pressed = false;
                 process_dynamic_macro(DM_REC1, &kr);
                 //handle_dynamic_macro(DM_REC1);
@@ -235,26 +406,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 
 void dynamic_macro_record_start_user(int8_t direction) {
-    tap_code(KC_F);
-    tap_code(KC_R);
+    //tap_code(KC_F);
+    //tap_code(KC_R);
     uprintf("in dynamic_macro_record_start_user\n");
 }
 
 void dynamic_macro_play_user(int8_t direction) {
-    tap_code(KC_F);
-    tap_code(KC_P);
+    //tap_code(KC_F);
+    //tap_code(KC_P);
     uprintf("in dynamic_macro_play_user\n");
 }
 
 void dynamic_macro_record_key_user(int8_t direction, keyrecord_t *record) {
-    tap_code(KC_I);
-    tap_code(KC_R);
+    //tap_code(KC_I);
+    //tap_code(KC_R);
     uprintf("in dynamic_macro_record_key_user\n");
 }
 
 void dynamic_macro_record_end_user(int8_t direction) {
-    tap_code(KC_F);
-    tap_code(KC_S);
+    //tap_code(KC_F);
+    //tap_code(KC_S);
     uprintf("in dynamic_macro_record_end_user\n");
 }
 
@@ -331,7 +502,7 @@ void leader_end_user(void) {
 
 // Combos
 
-// Select
+// Select (Grab)
 const uint16_t PROGMEM select_beginning_of_line[] = {KC_G, KC_LEFT, COMBO_END};
 const uint16_t PROGMEM select_end_of_line[] = {KC_G, KC_RGHT, COMBO_END};
 const uint16_t PROGMEM select_beginning_of_text[] = {KC_G, KC_UP, COMBO_END};
@@ -339,6 +510,38 @@ const uint16_t PROGMEM select_end_of_text[] = {KC_G, KC_DOWN, COMBO_END};
 const uint16_t PROGMEM select_word[] = {KC_G, KC_W, COMBO_END};
 const uint16_t PROGMEM select_line[] = {KC_G, KC_L, COMBO_END};
 const uint16_t PROGMEM select_all[] = {KC_G, KC_A, COMBO_END};
+
+// Delete (Remove)
+const uint16_t PROGMEM delete_beginning_of_line[] = {KC_R, KC_LEFT, COMBO_END};
+const uint16_t PROGMEM delete_end_of_line[] = {KC_R, KC_RGHT, COMBO_END};
+const uint16_t PROGMEM delete_beginning_of_text[] = {KC_R, KC_UP, COMBO_END};
+const uint16_t PROGMEM delete_end_of_text[] = {KC_R, KC_DOWN, COMBO_END};
+const uint16_t PROGMEM delete_word[] = {KC_R, KC_W, COMBO_END};
+const uint16_t PROGMEM delete_line[] = {KC_R, KC_L, COMBO_END};
+
+// Copy (Bring)
+const uint16_t PROGMEM copy_beginning_of_line[] = {KC_B, KC_LEFT, COMBO_END};
+const uint16_t PROGMEM copy_end_of_line[] = {KC_B, KC_RGHT, COMBO_END};
+const uint16_t PROGMEM copy_beginning_of_text[] = {KC_B, KC_UP, COMBO_END};
+const uint16_t PROGMEM copy_end_of_text[] = {KC_B, KC_DOWN, COMBO_END};
+const uint16_t PROGMEM copy_word[] = {KC_B, KC_W, COMBO_END};
+const uint16_t PROGMEM copy_line[] = {KC_B, KC_L, COMBO_END};
+
+// Paste
+const uint16_t PROGMEM paste_beginning_of_line[] = {KC_V, KC_LEFT, COMBO_END};
+const uint16_t PROGMEM paste_end_of_line[] = {KC_V, KC_RGHT, COMBO_END};
+const uint16_t PROGMEM paste_beginning_of_text[] = {KC_V, KC_UP, COMBO_END};
+const uint16_t PROGMEM paste_end_of_text[] = {KC_V, KC_DOWN, COMBO_END};
+const uint16_t PROGMEM paste_word[] = {KC_V, KC_W, COMBO_END};
+const uint16_t PROGMEM paste_line[] = {KC_V, KC_L, COMBO_END};
+
+// Cut (Take)
+const uint16_t PROGMEM cut_beginning_of_line[] = {KC_T, KC_LEFT, COMBO_END};
+const uint16_t PROGMEM cut_end_of_line[] = {KC_T, KC_RGHT, COMBO_END};
+const uint16_t PROGMEM cut_beginning_of_text[] = {KC_T, KC_UP, COMBO_END};
+const uint16_t PROGMEM cut_end_of_text[] = {KC_T, KC_DOWN, COMBO_END};
+const uint16_t PROGMEM cut_word[] = {KC_T, KC_W, COMBO_END};
+const uint16_t PROGMEM cut_line[] = {KC_T, KC_L, COMBO_END};
 
 combo_t key_combos[] = {
     // Select
@@ -348,7 +551,39 @@ combo_t key_combos[] = {
     COMBO(select_end_of_text, M_SELET),
     COMBO(select_word, M_SELW),
     COMBO(select_line, M_SELL),
-    COMBO(select_all, M_SELA)
+    COMBO(select_all, M_SELA),
+
+    // Delete
+    COMBO(delete_beginning_of_line, M_DELBL),
+    COMBO(delete_end_of_line, M_DELEL),
+    COMBO(delete_beginning_of_text, M_DELBT),
+    COMBO(delete_end_of_text, M_DELET),
+    COMBO(delete_word, M_DELW),
+    COMBO(delete_line, M_DELL),
+
+    // Copy
+    COMBO(copy_beginning_of_line, M_CPBL),
+    COMBO(copy_end_of_line, M_CPEL),
+    COMBO(copy_beginning_of_text, M_CPBT),
+    COMBO(copy_end_of_text, M_CPET),
+    COMBO(copy_word, M_CPW),
+    COMBO(copy_line, M_CPL),
+
+    // Paste
+    COMBO(paste_beginning_of_line, M_PSTBL),
+    COMBO(paste_end_of_line, M_PSTEL),
+    COMBO(paste_beginning_of_text, M_PSTBT),
+    COMBO(paste_end_of_text, M_PSTET),
+    COMBO(paste_word, M_PSTW),
+    COMBO(paste_line, M_PSTL),
+
+    // Cut
+    COMBO(cut_beginning_of_line, M_CUTBL),
+    COMBO(cut_end_of_line, M_CUTEL),
+    COMBO(cut_beginning_of_text, M_CUTBT),
+    COMBO(cut_end_of_text, M_CUTET),
+    COMBO(cut_word, M_CUTW),
+    COMBO(cut_line, M_CUTL)
 };
 
 bool caps_word_press_user(uint16_t keycode) {
@@ -413,10 +648,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_BASE] = LAYOUT_planck_mit(
-    KC_ESC,      KC_Q,       KC_W,     KC_E,     KC_R,      KC_T,    KC_Y,  KC_U,      KC_I,     KC_O,     KC_P,       KC_BSPC,
-    KC_LSFT,     KC_A,       KC_S,     KC_D,     KC_F,      KC_G,    KC_H,  KC_J,      KC_K,     KC_L,     TT(_SYMB),  KC_RSFT,
-    KC_ENT,      KC_Z,       KC_X,     KC_C,     KC_V,      KC_B,    KC_N,  KC_M,      KC_LEFT,  KC_DOWN,  KC_UP,      KC_RGHT,
-    TT(_MEDIA),  LT(0,KC_NO),  KC_LALT,  KC_LCTL,  TT(_NUM),      KC_SPC,     TT(_NAV),  KC_RCTL,  KC_RGUI,  QK_LEAD,    TT(_FN)
+    KC_ESC,      KC_Q,         KC_W,     KC_E,     KC_R,      KC_T,    KC_Y,  KC_U,      KC_I,     KC_O,     KC_P,       KC_BSPC,
+    KC_LSFT,     KC_A,         KC_S,     KC_D,     KC_F,      KC_G,    KC_H,  KC_J,      KC_K,     KC_L,     TT(_SYMB),  KC_RSFT,
+    KC_ENT,      KC_Z,         KC_X,     KC_C,     KC_V,      KC_B,    KC_N,  KC_M,      KC_LEFT,  KC_DOWN,  KC_UP,      KC_RGHT,
+    TT(_MEDIA),  LT(0,KC_NO),  KC_LALT,  KC_LCTL,  TT(_NUM),      KC_SPC,     TT(_NAV),  KC_RCTL,  KC_RGUI,  QK_LEAD,    MO(_FN)
 ),
 
 /* Symbols
@@ -511,20 +746,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* Midi
  * ,-----------------------------------------------------------------------------------.
- * | BASE |  C4  |  D4  |  E4  |  F4  |  G4  |  A5  |  B5  |  C5  |  D5  |  E5  |      |
+ * |  C4  |  Cs4 |  D4  |  Ds4 |  E4  |  F4  |  Fs4 |  G4  |  Gs4 |  A4  |  As4 |  B4  |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |  C3  |  D3  |  E3  |  F3  |  G3  |  A4  |  B4  |  C4  |  D4  |  E4  |      |
+ * |  C3  |  Cs3 |  D3  |  Ds3 |  E3  |  F3  |  Fs3 |  G3  |  Gs3 |  A3  |  As3 |  B3  |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Oct+ |  C2  |  D2  |  E2  |  F2  |  G2  |  A3  |  B3  |  C3  |  D3  |  E3  |Trnps+|
+ * |  C2  |  Cs2 |  D2  |  Ds2 |  E2  |  F2  |  Fs2 |  G2  |  Gs2 |  A2  |  As2 |  B2  |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Oct- |      |      |      |      |             |      |      |      |      |Trnps-|
+ * | Oct- | Oct+ |      |      |      |             |      |      |      |Trnps-|Trnps+|
  * `-----------------------------------------------------------------------------------'
  */
 [_MIDI] = LAYOUT_planck_mit(
-    TO(_BASE),  MI_C4,    MI_D4,    MI_E4,    MI_F4,    MI_G4,    MI_A4,   MI_B4,    MI_C5,    MI_D5,    MI_E5,    XXXXXXX,
-    XXXXXXX,    MI_C3,    MI_D3,    MI_E3,    MI_F3,    MI_G3,    MI_A3,   MI_B3,    MI_C4,    MI_D4,    MI_E4,    XXXXXXX,
-    MI_OCTU,    MI_C2,    MI_D2,    MI_E2,    MI_F2,    MI_G2,    MI_A2,   MI_B2,    MI_C3,    MI_D3,    MI_E3,    MI_TRSU,
-    MI_OCTD,    XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,       XXXXXXX,      XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  MI_TRSD
+    MI_C4,    MI_Cs4,   MI_D4,    MI_Ds4,   MI_E4,    MI_F4,    MI_Fs4,  MI_G4,    MI_Gs4,   MI_A4,    MI_As4,   MI_B4,
+    MI_C3,    MI_Cs3,   MI_D3,    MI_Ds3,   MI_E3,    MI_F3,    MI_Fs3,  MI_G3,    MI_Gs3,   MI_A3,    MI_As3,   MI_B3,
+    MI_C2,    MI_Cs2,   MI_D2,    MI_Ds2,   MI_E2,    MI_F2,    MI_Fs2,  MI_G2,    MI_Gs2,   MI_A2,    MI_As2,   MI_B2,
+    MI_OCTD,  MI_OCTD,  XXXXXXX,  XXXXXXX,  XXXXXXX,     TO(_BASE),      XXXXXXX,  XXXXXXX,  XXXXXXX,  MI_TRSD,  MI_TRSU
 ),
 
 /* Game
