@@ -59,6 +59,7 @@ enum custom_keycodes {
     M_DELET,
     M_DELW,
     M_DELL,
+    M_DELA,
 
     // Copy
     M_CPBL,
@@ -67,6 +68,7 @@ enum custom_keycodes {
     M_CPET,
     M_CPW,
     M_CPL,
+    M_CPA,
 
     // Paste
     M_PSTBL,
@@ -75,6 +77,7 @@ enum custom_keycodes {
     M_PSTET,
     M_PSTW,
     M_PSTL,
+    M_PSTA,
 
     // Cut
     M_CUTBL,
@@ -82,7 +85,8 @@ enum custom_keycodes {
     M_CUTBT,
     M_CUTET,
     M_CUTW,
-    M_CUTL
+    M_CUTL,
+    M_CUTA
 };
 
 void keyboard_post_init_user(void) {
@@ -269,6 +273,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	    SEND_STRING(SS_TAP(X_HOME)SS_LCTL(SS_LSFT(SS_TAP(X_DEL)))SS_TAP(X_DEL));
 	}
 	break;
+    case M_DELA:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL("a")SS_TAP(X_DEL));
+	}
+	break;
 
     // Copy
     case M_CPBL:
@@ -299,6 +308,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case M_CPL:
         if (record->event.pressed) {
 	    SEND_STRING(SS_TAP(X_HOME)SS_LSFT(SS_TAP(X_END))SS_LCTL("c")SS_TAP(X_RGHT));
+	}
+	break;
+    case M_CPA:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL("ac")SS_TAP(X_RGHT));
 	}
 	break;
 
@@ -333,6 +347,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	    SEND_STRING(SS_TAP(X_HOME)SS_LSFT(SS_TAP(X_END))SS_LCTL("v"));
 	}
 	break;
+    case M_PSTA:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL("av"));
+	}
+	break;
 
     // Cut
     case M_CUTBL:
@@ -363,6 +382,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case M_CUTL:
         if (record->event.pressed) {
 	    SEND_STRING(SS_TAP(X_HOME)SS_LSFT(SS_TAP(X_END))SS_LCTL("x")SS_TAP(X_DEL));
+	}
+	break;
+    case M_CUTA:
+        if (record->event.pressed) {
+	    SEND_STRING(SS_LCTL("ax"));
 	}
 	break;
 
@@ -518,6 +542,7 @@ const uint16_t PROGMEM delete_beginning_of_text[] = {KC_R, KC_UP, COMBO_END};
 const uint16_t PROGMEM delete_end_of_text[] = {KC_R, KC_DOWN, COMBO_END};
 const uint16_t PROGMEM delete_word[] = {KC_R, KC_W, COMBO_END};
 const uint16_t PROGMEM delete_line[] = {KC_R, KC_L, COMBO_END};
+const uint16_t PROGMEM delete_all[] = {KC_R, KC_A, COMBO_END};
 
 // Copy (Bring)
 const uint16_t PROGMEM copy_beginning_of_line[] = {KC_B, KC_LEFT, COMBO_END};
@@ -526,6 +551,7 @@ const uint16_t PROGMEM copy_beginning_of_text[] = {KC_B, KC_UP, COMBO_END};
 const uint16_t PROGMEM copy_end_of_text[] = {KC_B, KC_DOWN, COMBO_END};
 const uint16_t PROGMEM copy_word[] = {KC_B, KC_W, COMBO_END};
 const uint16_t PROGMEM copy_line[] = {KC_B, KC_L, COMBO_END};
+const uint16_t PROGMEM copy_all[] = {KC_B, KC_A, COMBO_END};
 
 // Paste
 const uint16_t PROGMEM paste_beginning_of_line[] = {KC_V, KC_LEFT, COMBO_END};
@@ -534,6 +560,7 @@ const uint16_t PROGMEM paste_beginning_of_text[] = {KC_V, KC_UP, COMBO_END};
 const uint16_t PROGMEM paste_end_of_text[] = {KC_V, KC_DOWN, COMBO_END};
 const uint16_t PROGMEM paste_word[] = {KC_V, KC_W, COMBO_END};
 const uint16_t PROGMEM paste_line[] = {KC_V, KC_L, COMBO_END};
+const uint16_t PROGMEM paste_all[] = {KC_V, KC_A, COMBO_END};
 
 // Cut (Take)
 const uint16_t PROGMEM cut_beginning_of_line[] = {KC_T, KC_LEFT, COMBO_END};
@@ -542,6 +569,7 @@ const uint16_t PROGMEM cut_beginning_of_text[] = {KC_T, KC_UP, COMBO_END};
 const uint16_t PROGMEM cut_end_of_text[] = {KC_T, KC_DOWN, COMBO_END};
 const uint16_t PROGMEM cut_word[] = {KC_T, KC_W, COMBO_END};
 const uint16_t PROGMEM cut_line[] = {KC_T, KC_L, COMBO_END};
+const uint16_t PROGMEM cut_all[] = {KC_T, KC_A, COMBO_END};
 
 combo_t key_combos[] = {
     // Select
@@ -560,6 +588,7 @@ combo_t key_combos[] = {
     COMBO(delete_end_of_text, M_DELET),
     COMBO(delete_word, M_DELW),
     COMBO(delete_line, M_DELL),
+    COMBO(delete_all, M_DELA),
 
     // Copy
     COMBO(copy_beginning_of_line, M_CPBL),
@@ -568,6 +597,7 @@ combo_t key_combos[] = {
     COMBO(copy_end_of_text, M_CPET),
     COMBO(copy_word, M_CPW),
     COMBO(copy_line, M_CPL),
+    COMBO(copy_all, M_CPA),
 
     // Paste
     COMBO(paste_beginning_of_line, M_PSTBL),
@@ -576,6 +606,7 @@ combo_t key_combos[] = {
     COMBO(paste_end_of_text, M_PSTET),
     COMBO(paste_word, M_PSTW),
     COMBO(paste_line, M_PSTL),
+    COMBO(paste_all, M_PSTA),
 
     // Cut
     COMBO(cut_beginning_of_line, M_CUTBL),
@@ -583,7 +614,8 @@ combo_t key_combos[] = {
     COMBO(cut_beginning_of_text, M_CUTBT),
     COMBO(cut_end_of_text, M_CUTET),
     COMBO(cut_word, M_CUTW),
-    COMBO(cut_line, M_CUTL)
+    COMBO(cut_line, M_CUTL),
+    COMBO(cut_all, M_CUTA)
 };
 
 bool caps_word_press_user(uint16_t keycode) {
