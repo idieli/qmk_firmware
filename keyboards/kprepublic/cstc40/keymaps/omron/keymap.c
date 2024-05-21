@@ -380,24 +380,29 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // Dynamic Macro
     case LT(0,KC_NO):
         if (record->tap.count) { // Intercept tap
-            if (recording_dynamic_macro) {
+            if (recording_dynamic_macro) { // Stop recording
                 process_dynamic_macro(DM_RSTP, record);
-                if (!record->event.pressed) { // Released
+	        rgb_matrix_mode(RGB_MATRIX_CUSTOM_UNSET_MACRO_RGB);
+                if (!record->event.pressed) { // On release
                     recording_dynamic_macro = false;
-//rgb_matrix_mode(RGB_MATRIX_CUSTOM_BASE_RGB);
                 }
-            } else {
+            } else { //	Play recording
                 process_dynamic_macro(DM_PLY1, record);
 	    }
         } else { // Intercept hold
-            if (recording_dynamic_macro) {
+            if (recording_dynamic_macro) { // Stop recording
                 process_dynamic_macro(DM_RSTP, record);
-            } else {
+	        rgb_matrix_mode(RGB_MATRIX_CUSTOM_UNSET_MACRO_RGB);
+                if (!record->event.pressed) { // On release
+                    recording_dynamic_macro = false;
+                }
+            } else { //	Start recording
                 process_dynamic_macro(DM_REC1, record);
+	        rgb_matrix_mode(RGB_MATRIX_CUSTOM_SET_MACRO_RGB);
+                if (!record->event.pressed) { // On release
+                    recording_dynamic_macro = true;
+                }
 	    }
-            if (!record->event.pressed) { // Released
-                recording_dynamic_macro = !recording_dynamic_macro;
-            }
         }
         return false;
     }
@@ -407,9 +412,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // Leader Sequences
 void leader_start_user(void) {
     layer_move(_BASE);
+    rgb_matrix_mode(RGB_MATRIX_CUSTOM_SET_LEADER_RGB);
 }
 
 void leader_end_user(void) {
+    rgb_matrix_mode(RGB_MATRIX_CUSTOM_UNSET_LEADER_RGB);
+
     // One key sequence
     if (leader_sequence_one_key(KC_Q)) {
         // q : Quit
@@ -622,9 +630,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 [_BASE] = LAYOUT_planck_mit(
     KC_ESC,      KC_Q,         KC_W,     KC_E,     KC_R,      KC_T,    KC_Y,  KC_U,      KC_I,     KC_O,     KC_P,       KC_BSPC,
-    KC_LSFT,     KC_A,         KC_S,     KC_D,     KC_F,      KC_G,    KC_H,  KC_J,      KC_K,     KC_L,     TT(_SYMB),  KC_RSFT,
+    KC_LSFT,     KC_A,         KC_S,     KC_D,     KC_F,      KC_G,    KC_H,  KC_J,      KC_K,     KC_L,     MO(_SYMB),  KC_RSFT,
     KC_ENT,      KC_Z,         KC_X,     KC_C,     KC_V,      KC_B,    KC_N,  KC_M,      KC_LEFT,  KC_DOWN,  KC_UP,      KC_RGHT,
-    TT(_MEDIA),  LT(0,KC_NO),  KC_LALT,  KC_LCTL,  TT(_NUM),      KC_SPC,     TT(_NAV),  KC_RCTL,  KC_RGUI,  QK_LEAD,    MO(_FN)
+    MO(_MEDIA),  LT(0,KC_NO),  KC_LALT,  KC_LCTL,  MO(_NUM),      KC_SPC,     MO(_NAV),  KC_RCTL,  KC_RGUI,  QK_LEAD,    MO(_FN)
 ),
 
 /* Symbols
