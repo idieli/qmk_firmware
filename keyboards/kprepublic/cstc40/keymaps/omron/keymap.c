@@ -20,8 +20,6 @@
 
 #include QMK_KEYBOARD_H
 
-#include "print.h"
-
 #define _BASE 0
 #define _SYMB 1
 #define _MEDIA 2
@@ -30,6 +28,20 @@
 #define _FN 5
 #define _MIDI 6
 #define _GAME 7
+
+/*
+Midi plan
+Modes
+  One array per octave, all notes
+  Scale is just steps so check layer then decide which step
+  Store array that gets updated on 'layer' selection
+  Not actually storing layers, store variable
+*/
+//uint16_t notes3[] = {MI_C3,MI_Cs3,MI_D3,MI_Ds3,MI_E3,MI_F3,MI_Fs3,MI_G3,MI_Gs3,MI_A3,MI_As3,MI_B3};
+//uint16_t notes3[] = {MI_C3,MI_Cs3,MI_D3,MI_Ds3,MI_E3,MI_F3,MI_Fs3,MI_G3,MI_Gs3,MI_A3,MI_As3,MI_B3};
+//uint16_t notes3[] = {MI_C3,MI_Cs3,MI_D3,MI_Ds3,MI_E3,MI_F3,MI_Fs3,MI_G3,MI_Gs3,MI_A3,MI_As3,MI_B3};
+
+//uint8_t scale_major[] = 
 
 enum custom_keycodes {
     // Tabs
@@ -130,32 +142,7 @@ void caps_word_set_user(bool active) {
 
 bool recording_dynamic_macro = false;
 
-void handle_dynamic_macro(uint16_t keycode) {
-
-    keyrecord_t kr;
-
-    switch (keycode) {
-        case DM_RSTP:
-            recording_dynamic_macro = false;
-            kr.event.pressed = true;
-	    break;
-        case DM_PLY1:
-            kr.event.pressed = false;
-	    break;
-        case DM_REC1:
-            recording_dynamic_macro = true;
-            kr.event.pressed = false;
-	    break;
-	default:
-	    return;
-    }
-    process_dynamic_macro(keycode, &kr);
-}
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  // If console is enabled, it will print the matrix position and status of each key pressed
-    uprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
-
     switch (keycode) {
     // Tabs
     case M_REOPT:
@@ -392,76 +379,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     // Dynamic Macro
     case LT(0,KC_NO):
-        keyrecord_t kr;
-        //if (record->tap.count && record->event.pressed) { // Intercept tap
-        if (record->tap.count && !record->event.pressed) { // Intercept tap release
+        if (record->tap.count) { // Intercept tap
             if (recording_dynamic_macro) {
-		//tap_code(KC_S);
-                recording_dynamic_macro = false;
-
-                kr.event.pressed = true;
-                process_dynamic_macro(DM_RSTP, &kr);
-                //handle_dynamic_macro(DM_RSTP);
+                process_dynamic_macro(DM_RSTP, record);
+                if (!record->event.pressed) { // Released
+                    recording_dynamic_macro = false;
+//rgb_matrix_mode(RGB_MATRIX_CUSTOM_BASE_RGB);
+                }
             } else {
-		//tap_code(KC_P);
-                kr.event.pressed = false;
-                process_dynamic_macro(DM_PLY1, &kr);
-                //handle_dynamic_macro(DM_PLY1);
+                process_dynamic_macro(DM_PLY1, record);
 	    }
-        //} else if (record->event.pressed) { // Intercept hold
-        } else if (!record->event.pressed) { // Intercept hold release
+        } else { // Intercept hold
             if (recording_dynamic_macro) {
-		//tap_code(KC_S);
-                kr.event.pressed = true;
-                process_dynamic_macro(DM_RSTP, &kr);
-                //handle_dynamic_macro(DM_RSTP);
+                process_dynamic_macro(DM_RSTP, record);
             } else {
-		//tap_code(KC_R);
-                kr.event.pressed = false;
-                process_dynamic_macro(DM_REC1, &kr);
-                //handle_dynamic_macro(DM_REC1);
+                process_dynamic_macro(DM_REC1, record);
 	    }
-            recording_dynamic_macro = !recording_dynamic_macro;
+            if (!record->event.pressed) { // Released
+                recording_dynamic_macro = !recording_dynamic_macro;
+            }
         }
         return false;
     }
     return true;
 };
-
-
-void dynamic_macro_record_start_user(int8_t direction) {
-    //tap_code(KC_F);
-    //tap_code(KC_R);
-    uprintf("in dynamic_macro_record_start_user\n");
-}
-
-void dynamic_macro_play_user(int8_t direction) {
-    //tap_code(KC_F);
-    //tap_code(KC_P);
-    uprintf("in dynamic_macro_play_user\n");
-}
-
-void dynamic_macro_record_key_user(int8_t direction, keyrecord_t *record) {
-    //tap_code(KC_I);
-    //tap_code(KC_R);
-    uprintf("in dynamic_macro_record_key_user\n");
-}
-
-void dynamic_macro_record_end_user(int8_t direction) {
-    //tap_code(KC_F);
-    //tap_code(KC_S);
-    uprintf("in dynamic_macro_record_end_user\n");
-}
-
-/*
-void keyboard_post_init_user(void) {
-  // Customise these values to desired behaviour
-  debug_enable=true;
-  debug_matrix=true;
-  debug_keyboard=true;
-  //debug_mouse=true;
-}
-*/
 
 // Leader Sequences
 void leader_start_user(void) {

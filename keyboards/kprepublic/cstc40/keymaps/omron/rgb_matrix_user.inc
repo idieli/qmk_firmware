@@ -23,15 +23,7 @@ void skip_shifts(int key_min, int key_max, int *keys_to_color, int num_keys_to_c
 
 static bool BASE_RGB(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
-    /*
-    for (uint8_t i = led_min; i < led_max; i++) {
-        if (i != 12 && i != 23) {
-            rgb_matrix_set_color_all(RGB_OFF);
-        }
-    }
-    */
-    int keys[] = {};
-    skip_shifts(led_min, led_max, keys, 0, RGB_OFF);
+    rgb_matrix_set_color_all(RGB_OFF);
     return rgb_matrix_check_finished_leds(led_max);
 }
 
@@ -120,42 +112,65 @@ static bool FN_RGB(effect_params_t* params) {
     return rgb_matrix_check_finished_leds(led_max);
 }
 
+/*
 static bool MIDI_RGB(effect_params_t* params) {
-  RGB_MATRIX_USE_LIMITS(led_min, led_max);
-  rgb_matrix_set_color_all(RGB_OFF);
-  for (uint8_t i = 0; i < 3; i++) {
-    rgb_matrix_set_color(1+(12*i), RGB_RED);
-    rgb_matrix_set_color(8+(12*i), RGB_RED);
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+    rgb_matrix_set_color_all(RGB_OFF);
+    for (uint8_t i = 0; i < 3; i++) {
+      rgb_matrix_set_color(1+(12*i), RGB_RED);
+      rgb_matrix_set_color(8+(12*i), RGB_RED);
+  
+      rgb_matrix_set_color(2+(12*i), RGB_ORANGE);
+      rgb_matrix_set_color(9+(12*i), RGB_ORANGE);
+  
+      rgb_matrix_set_color(3+(12*i), RGB_YELLOW);
+      rgb_matrix_set_color(10+(12*i), RGB_YELLOW);
+  
+      rgb_matrix_set_color(4+(12*i), RGB_GREEN);
+  
+      rgb_matrix_set_color(5+(12*i), RGB_BLUE);
+  
+      rgb_matrix_set_color(6+(12*i), RGB_PURPLE);
+  
+      rgb_matrix_set_color(7+(12*i), RGB_MAGENTA);
+    }
+    return rgb_matrix_check_finished_leds(led_max);
+}
+*/
 
-    rgb_matrix_set_color(2+(12*i), RGB_ORANGE);
-    rgb_matrix_set_color(9+(12*i), RGB_ORANGE);
-
-    rgb_matrix_set_color(3+(12*i), RGB_YELLOW);
-    rgb_matrix_set_color(10+(12*i), RGB_YELLOW);
-
-    rgb_matrix_set_color(4+(12*i), RGB_GREEN);
-
-    rgb_matrix_set_color(5+(12*i), RGB_BLUE);
-
-    rgb_matrix_set_color(6+(12*i), RGB_PURPLE);
-
-    rgb_matrix_set_color(7+(12*i), RGB_MAGENTA);
-  }
-  return rgb_matrix_check_finished_leds(led_max);
+static bool MIDI_RGB(effect_params_t* params) {
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+    rgb_matrix_set_color_all(RGB_OFF);
+    for (uint8_t i = 0; i < 3; i++) {
+      rgb_matrix_set_color((12*i), RGB_GREEN);
+      rgb_matrix_set_color(1+(12*i), RGB_RED);
+      rgb_matrix_set_color(2+(12*i), RGB_GREEN);
+      rgb_matrix_set_color(3+(12*i), RGB_RED);
+      rgb_matrix_set_color(4+(12*i), RGB_GREEN);
+      rgb_matrix_set_color(5+(12*i), RGB_GREEN);
+      rgb_matrix_set_color(6+(12*i), RGB_RED);
+      rgb_matrix_set_color(7+(12*i), RGB_GREEN);
+      rgb_matrix_set_color(8+(12*i), RGB_RED);
+      rgb_matrix_set_color(9+(12*i), RGB_GREEN);
+      rgb_matrix_set_color(10+(12*i), RGB_RED);
+      rgb_matrix_set_color(11+(12*i), RGB_GREEN);
+  
+    }
+    return rgb_matrix_check_finished_leds(led_max);
 }
 
 static bool SET_CAPS_RGB(effect_params_t* params) {
-  RGB_MATRIX_USE_LIMITS(led_min, led_max);
-  rgb_matrix_set_color(12, RGB_WHITE);
-  rgb_matrix_set_color(23, RGB_WHITE);
-  return rgb_matrix_check_finished_leds(led_max);
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+    rgb_matrix_set_color(12, RGB_WHITE);
+    rgb_matrix_set_color(23, RGB_WHITE);
+    return rgb_matrix_check_finished_leds(led_max);
 }
 
 static bool UNSET_CAPS_RGB(effect_params_t* params) {
-  RGB_MATRIX_USE_LIMITS(led_min, led_max);
-  rgb_matrix_set_color(12, RGB_OFF);
-  rgb_matrix_set_color(23, RGB_OFF);
-  return rgb_matrix_check_finished_leds(led_max);
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+    rgb_matrix_set_color(12, RGB_OFF);
+    rgb_matrix_set_color(23, RGB_OFF);
+    return rgb_matrix_check_finished_leds(led_max);
 }
 
 #endif
