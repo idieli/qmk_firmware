@@ -102,7 +102,7 @@ enum custom_keycodes {
 };
 
 void keyboard_post_init_user(void) {
-    rgb_matrix_mode(RGB_MATRIX_CUSTOM_BASE_RGB);
+    rgb_matrix_mode(RGB_MATRIX_CUSTOM_ALL_OFF_RGB);
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
@@ -411,7 +411,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 // Leader Sequences
 void leader_start_user(void) {
-    layer_move(_BASE);
     rgb_matrix_mode(RGB_MATRIX_CUSTOM_SET_LEADER_RGB);
 }
 

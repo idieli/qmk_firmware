@@ -1,3 +1,4 @@
+RGB_MATRIX_EFFECT(ALL_OFF_RGB)
 RGB_MATRIX_EFFECT(BASE_RGB)
 RGB_MATRIX_EFFECT(SYMB_RGB)
 RGB_MATRIX_EFFECT(MEDIA_RGB)
@@ -25,44 +26,50 @@ void skip_shifts(int key_min, int key_max, int *keys_to_color, int num_keys_to_c
     }
 }
 
-static bool BASE_RGB(effect_params_t* params) {
+static bool ALL_OFF_RGB(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
     rgb_matrix_set_color_all(RGB_OFF);
     return rgb_matrix_check_finished_leds(led_max);
 }
 
+static bool BASE_RGB(effect_params_t* params) {
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+    for (uint8_t i = led_min; i < led_max; i++) {
+	if (i != 12 && i != 23 && i != 37 && i != 45) {
+            rgb_matrix_set_color(i, RGB_OFF);
+        }
+    }
+    return rgb_matrix_check_finished_leds(led_max);
+}
+
 static bool SYMB_RGB(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
-    int keys[] = {22};
-    skip_shifts(led_min, led_max, keys, 1, RGB_RED);
+    rgb_matrix_set_color(22, RGB_RED);
     return rgb_matrix_check_finished_leds(led_max);
 }
 
 static bool MEDIA_RGB(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
-    int keys[] = {36};
-    skip_shifts(led_min, led_max, keys, 1, RGB_ORANGE);
+    rgb_matrix_set_color(36, RGB_ORANGE);
     return rgb_matrix_check_finished_leds(led_max);
 }
 
 static bool NUM_RGB(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
-    int keys[] = {40};
-    skip_shifts(led_min, led_max, keys, 1, RGB_YELLOW);
+    rgb_matrix_set_color(40, RGB_YELLOW);
     return rgb_matrix_check_finished_leds(led_max);
 }
 
 static bool NAV_RGB(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
-    int keys[] = {42};
-    skip_shifts(led_min, led_max, keys, 1, RGB_GREEN);
+    rgb_matrix_set_color(42, RGB_GREEN);
     return rgb_matrix_check_finished_leds(led_max);
 }
 
 static bool FN_RGB(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
-    int keys[] = {20,46};
-    skip_shifts(led_min, led_max, keys, 2, RGB_BLUE);
+    rgb_matrix_set_color(20, RGB_BLUE);
+    rgb_matrix_set_color(46, RGB_BLUE);
     return rgb_matrix_check_finished_leds(led_max);
 }
 
