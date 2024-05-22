@@ -296,7 +296,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	break;
     case M_DUPT:
         if (record->event.pressed) {
-	    SEND_STRING(SS_LALT("d"SS_TAP(X_ENT)));
+	    SEND_STRING(SS_LALT("d"SS_DELAY(10)SS_TAP(X_ENT)));
 	}
 	break;
     case M_RELOT:
