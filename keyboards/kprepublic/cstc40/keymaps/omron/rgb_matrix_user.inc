@@ -69,10 +69,10 @@ static bool FN_RGB(effect_params_t* params) {
 static bool GAME_RGB(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
     rgb_matrix_set_color_all(RGB_OFF);
-    rgb_matrix_set_color(16, RGB_RED);
-    rgb_matrix_set_color(17, RGB_RED);
-    rgb_matrix_set_color(18, RGB_RED);
-    rgb_matrix_set_color(19, RGB_RED);
+    rgb_matrix_set_color(2, RGB_RED);
+    rgb_matrix_set_color(13, RGB_RED);
+    rgb_matrix_set_color(14, RGB_RED);
+    rgb_matrix_set_color(15, RGB_RED);
     return rgb_matrix_check_finished_leds(led_max);
 }
 
